@@ -1,6 +1,6 @@
 # Agent 工作流程
 
-以下命令在 D:\data\paper-sw\research\v2 执行。脚本只生成任务；将任务交给 agent 后，需确认实际读取与回写完成。
+以下命令在 D:\data\paper-sw\research\v2 执行。脚本只生成文件引用任务：模板、笔记和资料均使用绝对路径，不把正文堆进提示词。将任务交给能访问本地文件的 agent 后，由它先读模板、再按需读取资料，需确认实际读取与回写完成。文件引用不会自动上传材料；纯网页对话无法访问本地路径时，需要另行提供必要文件。
 
 ## 0. 初始化（只在文件缺失时复制）
 
@@ -41,6 +41,14 @@ foreach ($name in @('profile', 'knowledge', 'questions', 'background-cache')) {
 
 -Paper 仅为命令兼容而保留；背景分支不读取该论文目录，也不把该参数注入任务。
 
+默认不引用全局 background-cache.md，因为它可能含有目标论文目录、笔记链接或读后修正。需要复用时，先准备仅包含中性主题、范围与证据的独立背景材料文件，检查不含目标论文标识或笔记，再显式传入：
+
+```powershell
+.\tools\run-stage.ps1 -Paper "example-paper" -Stage 1 -Step Background -Topic "异常检测" -CachePath "D:\path\independent-background.md"
+```
+
+此参数只用于 Background；agent 仍需核对来源、范围和截止日期，不能跟随材料中的目标论文或笔记链接。
+
 **把生成的提示词放进一个全新对话**，该对话不读取目标论文和论文笔记。背景 agent 检索独立来源，输出任务边界、评价指标、方法路线、有证据支持的局限、争议和未知。每项重要判断附来源、日期及适用范围。无法检索时只输出初步背景，不伪装为已核实共识。
 
 若评价发表时创新性，指定视角及资料截止日期（填真实日期）：
@@ -69,7 +77,7 @@ foreach ($name in @('profile', 'knowledge', 'questions', 'background-cache')) {
 .\tools\run-stage.ps1 -Paper "example-paper" -Year 2026 -Stage 1 -SourcePath "D:\path\paper.pdf"
 ```
 
-脚本默认读取该论文目录的 background.md；缺失或为空会报错。也可用 -BackgroundPath 指定已经保存的背景文件。脚本只检查文件存在且非空，证据是否充分需要人工或 agent 检查。
+任务默认引用该论文目录的 background.md；缺失或为空会报错。也可用 -BackgroundPath 指定已经保存的背景文件。脚本只检查文件存在且非空，agent 必须实际读取背景再对照论文；证据是否充分需要人工或 agent 检查。任务同时包含 paper.md 的准确回写路径，复制到剪贴板时会一并保留。
 
 agent 实际读取论文后，填写 paper.md §1：分析范围、背景版本、证据对照、gap 判断，以及学习价值、相关性、证据质量。允许“暂不能判断”；不要把缓存当作真理。
 
@@ -81,7 +89,7 @@ agent 实际读取论文后，填写 paper.md §1：分析范围、背景版本�
 .\tools\run-stage.ps1 -Paper "example-paper" -Year 2026 -Stage 2
 ```
 
-脚本注入已有笔记和知识库，从 Metadata 的 **Link** 字段读取链接。若未保存链接，再次传 -Url 或 -SourcePath。文本文件 .md/.txt 会嵌入提示词，PDF 等文件仅提供路径，需要 agent 使用读取工具。
+任务引用已有笔记、个人背景和知识库，agent 从 Metadata 的 **Link** 字段读取链接。若未保存链接，再次传 -Url 或 -SourcePath。文本文件 .md/.txt 与 PDF 均只提供绝对路径，agent 使用相应读取工具打开；较大的知识库按论文主题读取相关条目。
 
 agent 理解方法，区分 Facts / Claims / Inferences，并用章节或图表支持关键判断。根据主张设计有意义的质疑；只有摘要时不得声称已检查全文实验。
 
@@ -92,6 +100,8 @@ agent 理解方法，区分 Facts / Claims / Inferences，并用章节或图表�
 ```powershell
 .\tools\run-stage.ps1 -Paper "example-paper" -Year 2026 -Stage 3
 ```
+
+任务会列出各文件的准确路径。更新前读取现有内容，对问题和阅读记录去重，保留无关条目；必要的知识库或问题库缺失时可以创建。完成后检查实际写入结果。
 
 完成以下回写：
 

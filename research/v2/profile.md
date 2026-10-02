@@ -10,21 +10,14 @@
 - 我目前还没有选导师，暂时没有研究方向
 
 当前关注的具体问题：
-- 暂无
-- 
+
+* 我什么也不懂
 
 ---
 
 ## 2. What I Know / Don't Know
 
-### 已经熟悉
-- 
-
-### 部分了解
-- 
-
-### 完全不懂
-- 
+我什么也不懂
 
 ---
 
@@ -32,9 +25,7 @@
 
 我目前真正想知道答案的问题：
 
-1. 
-2. 
-3. 
+我什么也不懂
 
 ---
 
@@ -42,7 +33,7 @@
 
 | Paper | Date | Priority | Main Takeaway |
 |-------|------|----------|---------------|
-| [MiniMaxAD](../papers/2026/minimaxad-a-lightweight-autoencoder-for-feature-rich-anomaly-detection/paper.md)（arXiv 2024；期刊 2025） | 2026-10-02 | B | 大核/GRN + ADCLoss 在部分高外观变化协议改善 RD；FRAD 因果解释与部署低误报表现未证实（表 3/5/7）。 |
+|  |      |  |  |
 
 ---
 
