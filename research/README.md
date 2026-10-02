@@ -1,201 +1,244 @@
-# 研究生论文阅读系统 v1.0
+# 研究生论文阅读系统
 
-> 目标不是知识管理，而是让每一篇论文都走完一条固定流水线：
->
-> **筛选 → 建立背景 → 阅读 → 重建逻辑 → 验证 → 反驳 → 形成自己的判断 → 沉淀知识 → 产生新问题**
+> 两个版本可选：**v2 简化版（推荐）** vs **v1 完整版**
 
 ---
 
-## 1. 目录结构
+## 📂 目录结构
 
-```text
+```
 research/
-├── README.md            ← 本文件：系统说明与使用方式
-├── HOWTO.md             ← 「怎么跟 AI 说」的对话话术速查（先看这个）
-├── profile.md           ← 我的科研身份与当前知识状态（AI 的长期上下文）
-├── knowledge.md         ← 我认为人类已经知道什么（抗论文叙事污染的 grounding）
-├── questions.md         ← 我目前真正不知道答案的问题
+├── README.md              ← 本文件：版本说明
+├── papers/                ← 论文存放目录（两个版本共享）
 │
-├── prompts/             ← 分阶段 Prompt，不要合成一个大 Prompt
-│   ├── 00-screening.md
-│   ├── 01-background.md
-│   ├── 02-reading.md
-│   ├── 03-logic-check.md
-│   ├── 04-method-check.md
-│   ├── 05-experiment-check.md
-│   ├── 06-review.md
-│   ├── 07-defense.md
-│   └── 08-synthesis.md
+├── v2/                    ← 简化版（推荐）⭐
+│   ├── README.md          ← v2 使用说明
+│   ├── QUICKSTART.md      ← 10分钟快速上手
+│   ├── WHY-SIMPLIFIED.md  ← 为什么简化
+│   ├── SIMPLIFICATION-GUIDE.md  ← 完整减法说明
+│   ├── profile.md         ← 你的研究背景
+│   ├── knowledge.md       ← 知识库
+│   ├── questions.md       ← 开放问题
+│   ├── prompts/           ← 3个简化prompt
+│   ├── templates/         ← 简化模板
+│   └── tools/             ← 自动化工具
 │
-├── templates/           ← 空白模板（由 tools/new-paper.ps1 复制）
-│   ├── paper.md
-│   ├── my-judgment.md
-│   └── questions.md
-│
-├── tools/
-│   └── new-paper.ps1    ← 一键建论文目录
-│
-└── papers/
-    └── YYYY/
-        └── paper-name/
-            ├── paper.md
-            ├── my-judgment.md
-            └── questions.md
+└── v1/                    ← 完整版
+    ├── README.md          ← v1 使用说明
+    ├── HOWTO.md           ← 详细话术
+    ├── profile.md         ← 研究背景（详细版）
+    ├── knowledge.md       ← 知识库（详细版）
+    ├── questions.md       ← 开放问题（详细版）
+    ├── prompts/           ← 9个完整prompt
+    ├── templates/         ← 完整模板
+    └── tools/             ← 基础工具
 ```
 
 ---
 
-## 2. 标准流程
+## 🚀 快速选择
 
-```text
-                   新论文
-                     │
-                     ▼
-              00 Screening
-                     │
-             值不值得读？
-                /          \
-              No            Yes
-              │              │
-             结束             ▼
-                     01 Background
-                             │
-                     建立知识坐标系
-                             │
-                             ▼
-                       02 Reading
-                             │
-                       第一次理解
-                             │
-                             ▼
-                      03 Logic Check
-                             │
-                       逻辑是否成立？
-                             │
-                             ▼
-                      04 Method Check
-                             │
-                        方法真的新吗？
-                             │
-                             ▼
-                   05 Experiment Check
-                             │
-                      实验真的证明了吗？
-                             │
-                             ▼
-                       06 Review
-                             │
-                       尝试 Reject
-                             │
-                             ▼
-                       07 Defense
-                             │
-                       尝试反驳 Reviewer
-                             │
-                             ▼
-                      08 Synthesis
-                             │
-                   变成自己的知识
-                             │
-               ┌─────────────┴─────────────┐
-               ▼                           ▼
-        knowledge.md                 questions.md
-               │                           │
-               └─────────────┬─────────────┘
-                             ▼
-                       Research Ideas
-```
+### 推荐：v2 简化版 ⭐
 
----
+**适合你，如果：**
+- ✅ 想快速上手，10分钟开始使用
+- ✅ 每周需要读3-5篇论文
+- ✅ 希望30分钟/篇的效率
+- ✅ 想要一个能坚持使用的系统
 
-## 3. 三条硬规则
+**特点：**
+- 3阶段流程（Screening → Reading → Synthesis）
+- 120行简化模板
+- 自动化工具支持
+- 30分钟/篇
 
-**第一，不要让 AI 的第一个动作就是总结。**
-
-```text
-Human Knowledge → Current State → Paper        ✅
-Paper → AI Summary → 相信 AI                    ❌
-```
-
-**第二，每篇论文必须留下一个 `My Judgment`。**
-
-否则你保存的只是「这篇论文讲了什么」，而不是「我认为这篇论文到底贡献了什么」。
-
-**第三，每读完一篇论文，至少产生一个 `Open Question`。**
-
----
-
-## 4. 三档使用强度（防止变成"维护 Markdown"）
-
-| 档位 | 适用 | 执行流程 |
-| --- | --- | --- |
-| **C** | 普通论文 | Screening → Reading → Synthesis |
-| **B** | 重要论文 | Screening → Background → Reading → Logic → Experiment → Synthesis |
-| **A** | 核心论文 / 导师要求 / 准备复现 | 全流程 + Review + Defense + Reproduction + Research Ideas |
-
----
-
-## 5. 怎么用
-
-> 只想看「话怎么说」→ 直接读 [HOWTO.md](HOWTO.md)，里面有九阶段可复制话术。
-
-### 5.1 新建一篇论文
-
+**开始使用：**
 ```powershell
-cd research
-.\tools\new-paper.ps1 -Name "rag-hallucination-survey"
-# 或指定年份
-.\tools\new-paper.ps1 -Name "xxx" -Year 2025
+cd v2
+# 阅读 QUICKSTART.md，10分钟上手
 ```
-
-生成 `papers/<year>/<name>/{paper.md,my-judgment.md,questions.md}`。
-
-### 5.2 和 AI 对话时怎么给上下文
-
-每个 prompt 里有 `{{PROFILE}}` / `{{KNOWLEDGE}}` / `{{PAPER}}` 占位符。两种给法：
-
-- **贴内容**：把 `profile.md`、`knowledge.md` 的正文粘进去（最可靠）
-- **给路径**：告诉 AI「先读 `research/profile.md` 和 `research/knowledge.md`，再读 `papers/2026/xxx/paper.md`」
-
-建议顺序永远是：
-
-```text
-profile.md → knowledge.md → 目标论文
-```
-
-### 5.3 一次对话只做一个阶段
-
-```text
-Screening ≠ Reading
-Reading   ≠ Reviewing
-Reviewing ≠ Research Ideation
-```
-
-不要在一个 prompt 里既让它总结、又让它批判、又让它提 idea。阶段输出分别写回 `paper.md` 的对应章节。
-
-### 5.4 读完之后必须回写
-
-| 文件 | 何时更新 |
-| --- | --- |
-| `papers/.../paper.md` | 每完成一个阶段，写回对应章节 |
-| `papers/.../my-judgment.md` | 08 Synthesis 之后 |
-| `papers/.../questions.md` | 每篇至少 1 条 |
-| `profile.md` §4 §5 §6 §7 | 每读 3~5 篇，或知识/信念发生改变时 |
-| `knowledge.md` §9 §10 §11 | 有新知识 / 有冲突 / 有推翻时 |
-| `questions.md` | 有新的未解问题，或旧问题被refine |
 
 ---
 
-## 6. 终点
+### v1 完整版
 
-```text
-100 papers
-     ↓
-Knowledge Graph
-     ↓
-30 important ideas
-     ↓
-15 unresolved questions
-     ↓
-5 potential research directions
+**适合你，如果：**
+- ✅ 需要极致深度的论文分析
+- ✅ 准备复现核心论文
+- ✅ 时间充裕，愿意投入3小时/篇
+- ✅ 追求系统性、穷尽式的审查
+
+**特点：**
+- 9阶段流程（包含Logic/Method/Experiment独立审查）
+- 350行完整模板
+- 对抗性Review+Defense
+- 3小时/篇
+
+**开始使用：**
+```powershell
+cd v1
+# 阅读 README.md 和 HOWTO.md
 ```
+
+---
+
+## 📊 版本对比
+
+| 项目 | v2 简化版 | v1 完整版 |
+|------|-----------|-----------|
+| **阶段数** | 3个 | 9个 |
+| **单篇时间** | 30分钟 | 3小时 |
+| **模板行数** | 120行 | 350行 |
+| **学习曲线** | 10分钟 | 1-2天 |
+| **自动化工具** | ✅ run-stage.ps1 | 部分手动 |
+| **适用场景** | 日常论文阅读 | 深度分析 |
+| **推荐指数** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+
+---
+
+## 🎯 核心价值（两版本共享）
+
+无论选择哪个版本，核心目标不变：
+
+✅ **批判性思维**：区分 Facts / Claims / Inferences  
+✅ **反对AI总结**：用自己的话理解  
+✅ **知识沉淀**：持续更新 knowledge.md  
+✅ **问题驱动**：每篇论文产生至少1个问题  
+✅ **可验证性**：One-Sentence Summary 检验理解  
+
+---
+
+## 💡 使用建议
+
+### 如果你是第一次使用
+→ **从 v2 开始**，读 `v2/QUICKSTART.md`
+
+### 如果你不确定选哪个
+→ **先用 v2**，不够用再补充 v1 的某些阶段
+
+### 如果你遇到特殊情况
+- 核心论文需要复现 → v2 + 手动补充详细分析
+- 准备写Survey → v2 标准流程 + v1 Background阶段
+- 论文逻辑极其复杂 → v2 + 手动重建逻辑链
+
+### 如果你已经熟悉系统
+→ 标准流程用 v2，A类论文混用 v1 部分阶段
+
+---
+
+## 📁 papers/ 目录（共享）
+
+两个版本使用**同一个** `papers/` 目录存放论文。
+
+```
+papers/
+└── 2024/
+    ├── paper-name-1/
+    │   └── paper.md      ← 可以用v1或v2模板
+    └── paper-name-2/
+        └── paper.md
+```
+
+**创建论文目录：**
+```powershell
+# v1 方式
+.\v1\tools\new-paper.ps1 -Name "example"
+
+# v2 方式（推荐）
+.\v2\tools\new-paper.ps1 -Name "example"
+```
+
+---
+
+## 🛠️ 工具对比
+
+### v2 工具（自动化）
+```powershell
+# 一键执行阶段（自动组装prompt）
+.\v2\tools\run-stage.ps1 -Paper "example" -Stage 1
+
+# 查看进度
+.\v2\tools\status.ps1
+```
+
+### v1 工具（基础）
+```powershell
+# 创建论文目录
+.\v1\tools\new-paper.ps1 -Name "example"
+
+# 查看进度
+.\v1\tools\status.ps1
+
+# Prompt需要手动组装（参考HOWTO.md）
+```
+
+---
+
+## 📖 推荐阅读路径
+
+### 路径1：快速上手（推荐）
+1. `v2/QUICKSTART.md` - 10分钟上手
+2. `v2/WHY-SIMPLIFIED.md` - 理解简化原因
+3. 开始读第一篇论文
+
+### 路径2：深入理解
+1. `v2/QUICKSTART.md` - 先了解简化版
+2. `v2/SIMPLIFICATION-GUIDE.md` - 详细对比
+3. `v1/README.md` - 完整版说明
+4. `v1/HOWTO.md` - 完整版话术
+
+### 路径3：直接用完整版
+1. `v1/README.md` - 系统说明
+2. `v1/HOWTO.md` - 话术速查
+3. 开始第一篇论文
+
+---
+
+## ❓ 常见问题
+
+**Q: 我应该选哪个版本？**  
+A: 如果不确定，从 v2 开始。80%的场景下 v2 够用。
+
+**Q: 可以混用两个版本吗？**  
+A: 可以。标准流程用 v2，核心论文用 v1 的部分阶段。
+
+**Q: v2 会不会丢失重要信息？**  
+A: 核心批判性思维没有丢失。需要更深入分析时，随时在 Notes 部分补充。
+
+**Q: papers/ 目录是共享的吗？**  
+A: 是的，两个版本共享 `papers/` 目录。paper.md 可以用 v1 或 v2 模板。
+
+**Q: 如何从 v1 切换到 v2？**  
+A: 新论文直接用 v2。旧论文保持原样，或者手动精简到 v2 格式。
+
+**Q: 如何从 v2 升级到 v1？**  
+A: 在 v2 的 paper.md 基础上，补充 v1 需要的额外章节即可。
+
+---
+
+## 🚦 立即开始
+
+### 如果你想快速上手
+```powershell
+cd v2
+notepad QUICKSTART.md
+```
+
+### 如果你想深度分析
+```powershell
+cd v1
+notepad README.md
+notepad HOWTO.md
+```
+
+---
+
+## 🎓 记住
+
+> **最好的系统是你真正会用的系统。**
+
+- 完美但用不起来 = 0分
+- 简化但能坚持 = 80分  
+- 简化 + 按需补充 = 90分
+
+从 v2 开始，先用起来，再根据需要调整。

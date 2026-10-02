@@ -1,38 +1,19 @@
 # papers/
 
-每篇论文一个目录：
+每篇论文一个目录，由 v2 的工具和模板维护：
 
 ```text
-papers/YYYY/paper-name/
-├── paper.md          ← 全流程记录（模板 templates/paper.md）
-├── my-judgment.md    ← 我的最终判断（模板 templates/my-judgment.md）
-└── questions.md      ← 这篇论文产生的未解问题（模板 templates/questions.md）
+papers/发表年份/论文短名/
+├── paper.md       # 筛选、阅读、知识沉淀与进度
+└── background.md  # 阅读前独立背景快照，调查完成后保存
 ```
 
-## 命名约定
+论文短名使用小写英文与连字符。-Year 是发表年份，默认当前年份，往年论文必须显式指定。背景快照保留版本、来源、资料截止日期和适用范围；阅读后的修正写入 v2/background-cache.md，不覆盖快照。
 
-- 年份目录：论文**发表年份**（不是阅读年份）
-- `paper-name`：小写、连字符分隔、能一眼认出的短名
-
-```text
-papers/2026/rag-hallucination-survey/
-papers/2026/agent-memory-benchmark/
-papers/2025/long-context-attention/
-```
-
-## 可选：文件名前缀标注档位
-
-如果同时读很多论文，可在目录名前加档位：
-
-```text
-papers/2026/A-xxx/   ← 核心论文，全流程
-papers/2026/B-xxx/   ← 重要论文
-papers/2026/C-xxx/   ← 普通论文
-```
-
-## 新建
+从 research 目录创建：
 
 ```powershell
-cd research
-.\tools\new-paper.ps1 -Name "rag-hallucination-survey"
+.\v2\tools\new-paper.ps1 -Name "example-paper" -Year 2026 -Title "论文标题"
 ```
+
+详细流程见 [v2/QUICKSTART.md](../v2/QUICKSTART.md)。v1 旧版可能还有 my-judgment.md 和单篇 questions.md，v2 不要求新增这些文件。
